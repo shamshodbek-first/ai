@@ -316,18 +316,18 @@ async def handle_user_message(message: Message) -> None:
                     voice = message.voice
                     file_id = voice.file_id
                     file = await bot.get_file(file_id)
-                    download_folder = '/home/shamshodbek/Python/AI/venv'
+                    download_folder = '/home/'
                     os.makedirs(download_folder, exist_ok=True)
                     file_path = os.path.join(download_folder, "test.ogg")
                     await bot.download_file(file.file_path, file_path)
-                    audio_file_path = "/home/shamshodbek/Python/AI/test.ogg"
+                    audio_file_path = "/home/test.ogg"
                     audio = AudioSegment.from_ogg(audio_file_path)
                     audio.export("test.wav", format="wav")
                     recognizer = sr.Recognizer()
                     with sr.AudioFile("test.wav") as source:
                         audio_data = recognizer.record(source)
-                    os.remove("/home/shamshodbek/Python/AI/test.ogg")
-                    os.remove("/home/shamshodbek/Python/AI/test.wav")
+                    os.remove("/home/test.ogg")
+                    os.remove("/home/test.wav")
                     text = str(recognizer.recognize_google(audio_data))
                     translator = Translator()
                     detected_lang = await translator.detect(text)
