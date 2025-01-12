@@ -21,11 +21,11 @@ API_KEY = "AIzaSyA6LSKA5wkRQEfV4xTnFcwClDYiPKUlQ8o"
 
 
 genai.configure(api_key=API_KEY) 
-
+TOKEN = '7408164199:AAGbdlrKsBIGEWBIxzqbQi-XfZLDVPnFMgY'
 
 bot = Bot(token=TOKEN)
 
-TOKEN = '7408164199:AAGbdlrKsBIGEWBIxzqbQi-XfZLDVPnFMgY'
+
 dp = Dispatcher()
 tgid = None
 yubor = False  
@@ -316,18 +316,22 @@ async def handle_user_message(message: Message) -> None:
                     voice = message.voice
                     file_id = voice.file_id
                     file = await bot.get_file(file_id)
-                    download_folder = '/home/'
-                    os.makedirs(download_folder, exist_ok=True)
-                    file_path = os.path.join(download_folder, "test.ogg")
-                    await bot.download_file(file.file_path, file_path)
-                    audio_file_path = "/home/test.ogg"
-                    audio = AudioSegment.from_ogg(audio_file_path)
-                    audio.export("test.wav", format="wav")
+                    
+                    file_data = await bot.download_file(file.file_path)
+                    audio_buffer = BytesIO()
+                    audio_buffer.write(file_data.read())
+                    audio_buffer.seek(0)  
+            
+                    audio = AudioSegment.from_file(audio_buffer, format="ogg")
+                    wav_buffer = BytesIO()
+                    audio.export(wav_buffer, format="wav")
+                    wav_buffer.seek(0)
+                    
+        
                     recognizer = sr.Recognizer()
-                    with sr.AudioFile("test.wav") as source:
+                    with sr.AudioFile(wav_buffer) as source:
                         audio_data = recognizer.record(source)
-                    os.remove("/home/test.ogg")
-                    os.remove("/home/test.wav")
+                    text = recognizer.recognize_google(audio_data, language="uz-UZ")
                     text = str(recognizer.recognize_google(audio_data))
                     translator = Translator()
                     detected_lang = await translator.detect(text)
